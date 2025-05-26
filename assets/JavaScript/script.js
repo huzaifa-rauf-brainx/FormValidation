@@ -159,6 +159,7 @@ function checkFormValidity() {
   ) {
     submitBtn.disabled = false;
     submitBtn.style.opacity = 1;
+    submitBtn.style.cursor = "pointer";
   } else {
     submitBtn.disabled = true;
   }

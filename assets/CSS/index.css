@@ -1,0 +1,6 @@
+.main-container .submit-button {
+    pointer-events: all !important;
+}
+.main-container .submit-button:hover {
+    cursor: not-allowed;
+}
