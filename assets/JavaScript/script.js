@@ -37,6 +37,8 @@ function validateAge() {
   if (age.value.trim() === "") {
     errorDiv.textContent = "Age is required.";
     submitBtn.disabled = true;
+  } else if (ageValue < 0) {
+    errorDiv.textContent = "Age cannot be a negative number!";
   } else if (isNaN(ageValue) || ageValue < 18 || ageValue > 151) {
     errorDiv.textContent = "Age must be a number between 18 and 151.";
     submitBtn.disabled = true;
@@ -156,6 +158,7 @@ function checkFormValidity() {
     isContactValid
   ) {
     submitBtn.disabled = false;
+    submitBtn.style.opacity = 1;
   } else {
     submitBtn.disabled = true;
   }
