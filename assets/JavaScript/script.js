@@ -1,169 +1,127 @@
-// funtion to validate first name
-function validateFirstName() {
-  const firstName = document.getElementById("firstName");
-  const errorDiv = document.getElementById("firstNameError");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
   const submitBtn = document.getElementById("submitBtn");
-
-  if (firstName.value.trim() == "") {
-    errorDiv.textContent = "First Name is required.";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
+  const NAME_REGEX = /^[A-Za-z]+$/;
+  const EMAIL_REGEX = /^[^@\s]+@[^@.\s]+\.[a-zA-Z]{2,}$/;
+  const CONTACT_REGEX = /^\d{11}$/;
+  const MIN_PASSWORD_LENGTH = 8;
+  const AGE_MIN = 18;
+  const AGE_MAX = 151;
+  function showError(input, message) {
+    const errorDiv = document.getElementById(`${input.id}Error`);
+    if (errorDiv) errorDiv.textContent = message;
+    input.classList.add("is-invalid");
+    input.classList.remove("is-valid");
   }
-}
-// funtion to validate last name
-function validateLastName() {
-  const lastName = document.getElementById("lastName");
-  const errorDiv = document.getElementById("lastNameError");
-  const submitBtn = document.getElementById("submitBtn");
-
-  if (lastName.value.trim() == "") {
-    errorDiv.textContent = "Last Name is required.";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
+  function showSuccess(input) {
+    const errorDiv = document.getElementById(`${input.id}Error`);
+    if (errorDiv) errorDiv.textContent = "";
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid");
   }
-}
-// funtion to validate age
-function validateAge() {
-  const age = document.getElementById("age");
-  const errorDiv = document.getElementById("ageError");
-  const submitBtn = document.getElementById("submitBtn");
+  function validateInput(input) {
+    if (!input) return false;
+    const value = input.value.trim();
+    switch (input.id) {
+      case "firstName":
+      case "lastName":
+        if (value === "") {
+          showError(input, `${input.id === "firstName" ? "First" : "Last"} Name is required.`);
+          return false;
+        }
+        if (!NAME_REGEX.test(value)) {
+          showError(input, `${input.id === "firstName" ? "First" : "Last"} Name can only contain letters.`);
+          return false;
+        }
+        showSuccess(input);
+        return true;
+      case "age":
+        const age = parseInt(value);
+        if (value === "") {
+          showError(input, "Age is required.");
+          return false;
+        }
+        if (isNaN(age) || age < AGE_MIN || age > AGE_MAX) {
+          showError(input, `Age must be between ${AGE_MIN} and ${AGE_MAX}.`);
+          return false;
+        }
+        showSuccess(input);
+        return true;
+      case "notificationEmail":
+        const emails = value.split(",").map(e => e.trim()).filter(e => e !== "");
+        if (emails.length === 0) {
+          showError(input, "At least one email is required.");
+          return false;
+        }
+        for (let email of emails) {
+          if (!EMAIL_REGEX.test(email)) {
+            showError(input, `"${email}" is not a valid email.`);
+            return false;
+          }
+        }
+        showSuccess(input);
+        return true;
+      case "password":
+        const hasUpper = /[A-Z]/.test(value);
+        const hasLower = /[a-z]/.test(value);
+        const hasDigit = /\d/.test(value);
 
-  const ageValue = age.value.trim();
-
-  if (age.value.trim() === "") {
-    errorDiv.textContent = "Age is required.";
-    submitBtn.disabled = true;
-  } else if (ageValue < 0) {
-    errorDiv.textContent = "Age cannot be a negative number!";
-  } else if (isNaN(ageValue) || ageValue < 18 || ageValue > 151) {
-    errorDiv.textContent = "Age must be a number between 18 and 151.";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
-  }
-}
-// funtion to validate email
-function validateEmails() {
-  const emailInput = document.getElementById("notificationEmail");
-  const errorDiv = document.getElementById("emailError");
-  const submitBtn = document.getElementById("submitBtn");
-  const emails = emailInput.value.split(",").map(e => e.trim()).filter(e => e !== "");
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (emails.length === 0) {
-    errorDiv.textContent = "At least one email is required.";
-    submitBtn.disabled = true;
-    return;
-  }
-  for (let email of emails) {
-    if (!emailPattern.test(email)) {
-      errorDiv.textContent = `"${email}" is not a valid email.`;
-      submitBtn.disabled = true;
-      return;
+        if (value.length < MIN_PASSWORD_LENGTH) {
+          showError(input, `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+          return false;
+        }
+        if (!hasUpper || !hasLower || !hasDigit) {
+          showError(input, "Must include uppercase, lowercase, and number.");
+          return false;
+        }
+        showSuccess(input);
+        return true;
+      case "confirmPassword":
+        const passwordVal = document.getElementById("password").value.trim();
+        if (value !== passwordVal) {
+          showError(input, "Passwords do not match.");
+          return false;
+        }
+        showSuccess(input);
+        return true;
+      case "contactNumber":
+        if (!/^\d+$/.test(value)) {
+          showError(input, "Contact number must contain digits only");
+          return false;
+        }
+        if (!CONTACT_REGEX.test(value)) {
+          showError(input, "Contact number must be exactly 11 digits.");
+          return false;
+        }
+        showSuccess(input);
+        return true;
+      default:
+        return true;
     }
   }
-  errorDiv.textContent = "";
-  checkFormValidity();
-}
-// funtion to validate password
-function validatePassword() {
-  const password = document.getElementById("password").value;
-  const errorDiv = document.getElementById("passwordError");
-  const submitBtn = document.getElementById("submitBtn");
-
-  if (password.length < 8) {
-    errorDiv.textContent = "Password must be at least 8 characters long.";
-    submitBtn.disabled = true;
-  } else if (!(/[A-Z]/.test(password))) {
-    errorDiv.textContent = "Password must have at least one uppercase letter.";
-    submitBtn.disabled = true;
-  } else if (!(/[a-z]/.test(password))) {
-    errorDiv.textContent = "Password must have at least one lowercase letter.";
-    submitBtn.disabled = true;
-  } else if (!(/[0-9]/.test(password))) {
-    errorDiv.textContent = "Password must include at least one number.";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
-  }
-}
-// funtion to validate confirm password
-function validateConfirmPassword() {
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-  const errorDiv = document.getElementById("confirmPasswordError");
-  const submitBtn = document.getElementById("submitBtn");
-
-  if (password !== confirmPassword) {
-    errorDiv.textContent = "Password and Confirm Password must match";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
-  }
-}
-// funtion to validate contact number
-function validateContactNumber() {
-  const contactInput = document.getElementById("contactNumber").value.trim();
-  const errorDiv = document.getElementById("contactNumberError");
-  const submitBtn = document.getElementById("submitBtn");
-  const contactPattern = /^\d{11}$/;
-
-  if (!contactPattern.test(contactInput)) {
-    errorDiv.textContent = "Contact number must be exactly 11 digits.";
-    submitBtn.disabled = true;
-  } else {
-    errorDiv.textContent = "";
-    checkFormValidity();
-  }
-}
-// funtion to validate form
-function checkFormValidity() {
-  const firstName = document.getElementById("firstName").value.trim();
-  const lastName = document.getElementById("lastName").value.trim();
-  const ageValue = document.getElementById("age").value.trim();
-  const emailInput = document.getElementById("notificationEmail").value.trim();
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-  const contactValue = document.getElementById("contactNumber").value.trim();
-  const submitBtn = document.getElementById("submitBtn");
-
-  const emails = emailInput.split(",").map(e => e.trim()).filter(e => e !== "");
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const allEmailsValid = emails.length > 0 && emails.every(e => emailPattern.test(e));
-
-  const minLength = 8;
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const isPasswordValid = password.length >= minLength && hasUpperCase && hasLowerCase && hasNumber;
-  const passwordsMatch = password === confirmPassword;
-
-  const contactPattern = /^\d{11}$/;
-  const isContactValid = contactPattern.test(contactValue);
-  if (
-    firstName !== "" &&
-    lastName !== "" &&
-    !isNaN(ageValue) &&
-    ageValue >= 18 &&
-    ageValue <= 1515 &&
-    allEmailsValid &&
-    isPasswordValid &&
-    passwordsMatch &&
-    isContactValid
-  ) {
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = 1;
-    submitBtn.style.cursor = "pointer";
-  } else {
-    submitBtn.disabled = true;
-  }
-}
-function successfulSubmit() {
-  alert("Application submitted successfully!");
-}
+  function isFormValid() {
+    const inputs = form.querySelectorAll("input:not([type=hidden]):not([type=submit])");
+    return Array.from(inputs).every(input => input.classList.contains("is-valid"));
+  }  
+  form.addEventListener("blur", (e) => {
+    if (e.target.tagName === "INPUT") {
+      validateInput(e.target);  
+      const allValid = isFormValid();
+      submitBtn.disabled = !allValid;
+      submitBtn.style.opacity = allValid ? "1" : "0.7";
+      submitBtn.style.cursor = allValid ? "pointer" : "not-allowed";
+    }
+  }, true);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let allValid = true;
+    const inputs = form.querySelectorAll("input:not([type=hidden]):not([type=submit])");
+    inputs.forEach(input => {
+      const valid = validateInput(input);
+      if (!valid) allValid = false;
+    });
+    if (allValid) {
+      alert("Application submitted successfully!");
+    }
+  });
+});
