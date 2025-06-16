@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("form");
   const submitBtn = document.getElementById("submitBtn");
-  const NAME_REGEX = /^[A-Za-z\s'-]+$/;
+  const NAME_REGEX = /^[A-Za-z]+$/;
   const EMAIL_REGEX = /^[^@\s]+@[^@.\s]+\.[a-zA-Z]{2,}$/;
   const CONTACT_REGEX = /^\d{11}$/;
   const MIN_PASSWORD_LENGTH = 8;
@@ -101,14 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function isFormValid() {
     const inputs = form.querySelectorAll("input:not([type=hidden]):not([type=submit])");
-    return Array.from(inputs).every(input => validateInput(input));
-  }
+    return Array.from(inputs).every(input => input.classList.contains("is-valid"));
+  }  
   form.addEventListener("blur", (e) => {
     if (e.target.tagName === "INPUT") {
-      validateInput(e.target);
-      submitBtn.disabled = !isFormValid();
-      submitBtn.style.opacity = submitBtn.disabled ? "0.5" : "1";
-      submitBtn.style.cursor = submitBtn.disabled ? "not-allowed" : "pointer";
+      validateInput(e.target);  
+      const allValid = isFormValid();
+      submitBtn.disabled = !allValid;
+      submitBtn.style.opacity = allValid ? "1" : "0.7";
+      submitBtn.style.cursor = allValid ? "pointer" : "not-allowed";
     }
   }, true);
   form.addEventListener("submit", (e) => {
