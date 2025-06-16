@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("form");
   const submitBtn = document.getElementById("submitBtn");
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const NAME_REGEX = /^[A-Za-z\s'-]+$/;
+  const EMAIL_REGEX = /^[^@\s]+@[^@.\s]+\.[a-zA-Z]{2,}$/;
   const CONTACT_REGEX = /^\d{11}$/;
   const MIN_PASSWORD_LENGTH = 8;
   const AGE_MIN = 18;
@@ -26,6 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
       case "lastName":
         if (value === "") {
           showError(input, `${input.id === "firstName" ? "First" : "Last"} Name is required.`);
+          return false;
+        }
+        if (!NAME_REGEX.test(value)) {
+          showError(input, `${input.id === "firstName" ? "First" : "Last"} Name can only contain letters.`);
           return false;
         }
         showSuccess(input);
@@ -71,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         showSuccess(input);
         return true;
-
       case "confirmPassword":
         const passwordVal = document.getElementById("password").value.trim();
         if (value !== passwordVal) {
@@ -80,15 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         showSuccess(input);
         return true;
-
       case "contactNumber":
+        if (!/^\d+$/.test(value)) {
+          showError(input, "Contact number must contain digits only");
+          return false;
+        }
         if (!CONTACT_REGEX.test(value)) {
-          showError(input, "Contact must be exactly 11 digits.");
+          showError(input, "Contact number must be exactly 11 digits.");
           return false;
         }
         showSuccess(input);
         return true;
-
       default:
         return true;
     }
